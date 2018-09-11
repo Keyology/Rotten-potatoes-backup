@@ -1,10 +1,17 @@
 const express = require('express');
+const methodOverride = require('method-override')
 const app = express();
-let exphbs = require('express-handlebars');
-const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/rotten-potatoes', {useNewUrlParser: true})
+const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/rotten-potatoes', {useNewUrlParser: true})
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(methodOverride('_method'))
+
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+
 
 const Review = mongoose.model('Review', {
   title: String,
@@ -33,20 +40,19 @@ app.get('/', (req, res) => {
 Review.find().then((review) => {
   // Code in here is executed when the promise resolves
 });
-app.get('/reviews', (req,res)=>{res.render('reviews-index', { reviews: reviews });})
+
+app.get('/reviews/:id/edit', function (req, res) {
+  Review.findById(req.params.id, function(err, review) {
+    res.render('reviews-edit', {review: review});
+  })
+})
+
 
 app.post('/reviews', (req, res) => {
   console.log(req.body);
   // res.render('reviews-new', {});
 })
-app.post('/reviews', (req, res) => {
-  Review.create(req.body).then((review) => {
-    console.log(review);
-    res.redirect('/');
-  }).catch((err) => {
-    console.log(err.message);
-  })
-})
+
 app.post('/reviews', (req, res) => {
   Review.create(req.body).then((review) => {
     console.log(review)
@@ -55,8 +61,16 @@ app.post('/reviews', (req, res) => {
     console.log(err.message)
   })
 })
-app.engine('handlebars', exphbs({defaultLayout: 'main'}));
-app.set('view engine', 'handlebars');
+
+app.put('/reviews/:id', (req, res) => {
+  Review.findByIdAndUpdate(req.params.id, req.body)
+    .then(review => {
+      res.redirect(`/reviews/${review._id}`)
+    })
+    .catch(err => {
+      console.log(err.message)
+    })
+})
 
 app.get('/reviews/:id', (req, res) => {
   res.send('I\'m a review')
