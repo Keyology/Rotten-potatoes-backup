@@ -20,13 +20,11 @@ const Review = mongoose.model('Review', {
   rating: Number,
 });
 
-app.get('/', (req, res) => {
-  Review.find().then(reviews => {
-    res.render('reviews-index', { reviews: reviews });
-
+app.get('/reviews/:id/edit', function (req, res) {
+  Review.findById(req.params.id, function(err, review) {
+    res.render('reviews-edit', {review: review});
   })
-
-});
+})
 
 app.get('/', (req, res) => {
   Review.find()
@@ -41,11 +39,7 @@ Review.find().then((review) => {
   // Code in here is executed when the promise resolves
 });
 
-app.get('/reviews/:id/edit', function (req, res) {
-  Review.findById(req.params.id, function(err, review) {
-    res.render('reviews-edit', {review: review});
-  })
-})
+
 
 
 app.post('/reviews', (req, res) => {
@@ -86,6 +80,16 @@ app.get('/reviews/:id', (req, res) => {
 app.get('/reviews/new', (req, res) => {
   res.render('reviews-new', {});
 })
+
 app.listen(3000, () => {
   console.log('App listening on port 3000!')
+})
+
+app.delete('/reviews/:id', function (req, res) {
+  console.log("DELETE review")
+  Review.findByIdAndRemove(req.params.id).then((review) => {
+    res.redirect('/');
+  }).catch((err) => {
+    console.log(err.message);
+  })
 })
