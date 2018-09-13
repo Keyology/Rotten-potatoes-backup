@@ -24,8 +24,8 @@ app.set('view engine', 'handlebars');
 app.get('/reviews/:id/edit', function (req, res) {
   Review.findById(req.params.id, function(err, review) {
     res.render('reviews-edit', {review: review});
-  })
-})
+  });
+});
 
 app.get('/', (req, res) => {
   Review.find()
@@ -68,7 +68,10 @@ app.put('/reviews/:id', (req, res) => {
 })
 
 app.get('/reviews/:id', (req, res) => {
-  res.send('I\'m a review')
+  Review.findById(req.params.id, function(err, review) {
+    res.render('reviews-edit', {review: review});
+  });
+
 });
 
 app.get('/reviews/:id', (req, res) => {
