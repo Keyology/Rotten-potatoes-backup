@@ -1,24 +1,24 @@
 const express = require('express');
-const methodOverride = require('method-override')
 const app = express();
+const methodOverride = require('method-override')
+
+const reviews = require('./controllers/reviews');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
+const Review = require('./models/review');
 const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost/rotten-potatoes', {useNewUrlParser: true})
+
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(methodOverride('_method'))
+app.use(methodOverride('_method'));
+
 
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
 
-const Review = mongoose.model('Review', {
-  title: String,
-  description: String,
-  movieTitle: String,
-  rating: Number,
-});
+
 
 app.get('/reviews/:id/edit', function (req, res) {
   Review.findById(req.params.id, function(err, review) {
@@ -81,9 +81,6 @@ app.get('/reviews/new', (req, res) => {
   res.render('reviews-new', {});
 })
 
-app.listen(3000, () => {
-  console.log('App listening on port 3000!')
-})
 
 app.delete('/reviews/:id', function (req, res) {
   console.log("DELETE review")
@@ -93,3 +90,9 @@ app.delete('/reviews/:id', function (req, res) {
     console.log(err.message);
   })
 })
+
+app.listen(3000, () => {
+  console.log('App listening on port 3000!')
+})
+
+module.exports = app;
